@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - Aurora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #fff; }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 24px; font-weight: 700; color: #1a1a2e; text-decoration: none; }
+        .logo span { color: #e94560; }
+        nav { display: flex; gap: 32px; }
+        nav a { text-decoration: none; color: #666; font-weight: 500; transition: color 0.2s; }
+        nav a:hover { color: #1a1a2e; }
+        .cart-btn { position:relative; cursor:pointer; font-size:22px; text-decoration:none; }
+        .cart-btn .cart-count { position:absolute;top:-6px;right:-8px;background:#e94560;color:white;font-size:11px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center; }
+        
+        /* Search Bar */
+        .search-section {
+            max-width: 800px;
+            margin: 60px auto 40px;
+            padding: 0 24px;
+            text-align: center;
+        }
+        .search-section h1 { font-size: 36px; font-weight: 700; color: #1a1a2e; margin-bottom: 24px; }
+        .search-bar {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 50px;
+            overflow: hidden;
+            padding: 6px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+        }
+        .search-bar button {
+            padding: 16px 32px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        /* Filters */
+        .filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px; margin-bottom: 40px; }
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+        
+        /* Products Grid */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px 60px; }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eee;
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .product-image {
+            aspect-ratio: 1;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-info { padding: 20px; }
+        .product-name { font-weight: 600; margin-bottom: 6px; color: #1a1a2e; }
+        .product-category { font-size: 13px; color: #999; margin-bottom: 10px; }
+        .product-price { font-size: 22px; font-weight: 700; color: #e94560; }
+        .product-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-add { flex: 1; padding: 12px; background: #1a1a2e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-add:hover { background: #e94560; }
+        .btn-wishlist { padding: 12px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; }
+        
+        .empty { text-align: center; padding: 80px; color: #999; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">Aurora<span>.</span></a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="search.html">Shop</a>
+            <a href="about.html">About</a>
+            <a href="payment.html" class="cart-btn">🛒<span class="cart-count" id="cartCount">0</span></a>
+        </nav>
+    </header>
+    
+    <div class="search-section">
+        <h1>Find Your Perfect Style</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for hoodies, t-shirts, accessories..." oninput="searchProducts()">
+            <button onclick="searchProducts()">Search</button>
+        </div>
+    </div>
+    
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterCategory('all')">All</button>
+        <button class="filter-btn" onclick="filterCategory('hoodies')">Hoodies</button>
+        <button class="filter-btn" onclick="filterCategory('tshirts')">T-Shirts</button>
+        <button class="filter-btn" onclick="filterCategory('hats')">Hats</button>
+        <button class="filter-btn" onclick="filterCategory('jackets')">Jackets</button>
+        <button class="filter-btn" onclick="filterCategory('backpack')">Bags</button>
+        <button class="filter-btn" onclick="filterCategory('eyewear')">Eyewear</button>
+        <button class="filter-btn" onclick="filterCategory('accessories')">Accessories</button>
+    </div>
+    
+    <div class="container">
+        <div class="products" id="products"></div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5000';
+        let allProducts = [];
+        let wishlist = JSON.parse(localStorage.getItem('aurora_wishlist')) || [];
+
+        async function loadProducts() {
+            try {
+                const res = await fetch(API + '/products');
+                allProducts = await res.json();
+                allProducts = allProducts.map(p => ({
+                    ...p,
+                    sizes: typeof p.sizes === 'string' ? JSON.parse(p.sizes || '[]') : (p.sizes || [])
+                }));
+                renderProducts(allProducts);
+                updateCartCount();
+            } catch (e) {
+                document.getElementById('products').innerHTML = '<div class="empty">Could not load products. Is the server running?</div>';
+            }
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('aurora_cart')) || [];
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const el = document.getElementById('cartCount');
+            if (el) el.textContent = count;
+        }
+
+        function filterCategory(category) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            const filtered = category === 'all' ? allProducts : allProducts.filter(p => p.category === category);
+            renderProducts(filtered);
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                (p.category || '').toLowerCase().includes(query)
+            );
+            renderProducts(filtered);
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('products');
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="empty">No products found.</div>';
+                return;
+            }
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${p.image || 'images/default.png'}" alt="${p.name}" onerror="this.parentElement.innerHTML='🛍️'">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-category">${p.category || 'Uncategorized'}</div>
+                        <div class="product-price">₹${p.price}</div>
+                        <div class="product-actions">
+                            <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+                            <button class="btn-wishlist" onclick="toggleWishlist(${p.id})">${wishlist.includes(p.id) ? '❤️' : '🤍'}</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const product = allProducts.find(p => p.id === id);
+            let cart = JSON.parse(localStorage.getItem('aurora_cart')) || [];
+            const existing = cart.find(item => item.id === id);
+            if (existing) existing.quantity++;
+            else cart.push({ ...product, quantity: 1 });
+            localStorage.setItem('aurora_cart', JSON.stringify(cart));
+            showToast('Added to cart! 🛒');
+        }
+
+        function showToast(msg) {
+            let t = document.getElementById('aurora-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'aurora-toast';
+                t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:white;padding:14px 28px;border-radius:50px;font-size:15px;font-weight:500;z-index:9999;transition:opacity 0.3s;box-shadow:0 8px 30px rgba(0,0,0,0.2);';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.style.opacity = '1';
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.style.opacity = '0', 2500);
+        }
+
+        function toggleWishlist(id) {
+            if (wishlist.includes(id)) {
+                wishlist = wishlist.filter(i => i !== id);
+            } else {
+                wishlist.push(id);
+            }
+            localStorage.setItem('aurora_wishlist', JSON.stringify(wishlist));
+            searchProducts();
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>

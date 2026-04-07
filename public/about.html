@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Aurora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #fff; }
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 60px; background: white; box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
+        .logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: #1a1a1a; text-decoration: none; }
+        .logo span { color: #e94560; }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { text-decoration: none; color: #666; font-weight: 500; }
+        .nav-links a:hover { color: #1a1a1a; }
+        
+        .hero { background: linear-gradient(135deg, #1a1a1a, #2d2d3a); padding: 100px 60px; text-align: center; color: white; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 56px; margin-bottom: 20px; }
+        .hero p { font-size: 18px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+        
+        .section { padding: 80px 60px; max-width: 1200px; margin: 0 auto; }
+        .section h2 { font-family: 'Playfair Display', serif; font-size: 40px; text-align: center; margin-bottom: 50px; }
+        
+        .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 60px; }
+        .value-card { background: #f8f8f8; padding: 40px; border-radius: 20px; text-align: center; transition: transform 0.3s; }
+        .value-card:hover { transform: translateY(-5px); }
+        .value-icon { font-size: 50px; margin-bottom: 20px; }
+        .value-card h3 { font-size: 20px; margin-bottom: 12px; }
+        .value-card p { color: #666; line-height: 1.6; }
+        
+        .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
+        .feature { display: flex; gap: 20px; align-items: flex-start; }
+        .feature-icon { font-size: 40px; flex-shrink: 0; }
+        .feature h3 { font-size: 18px; margin-bottom: 8px; }
+        .feature p { color: #666; line-height: 1.6; }
+        
+        .cta { background: #1a1a1a; color: white; text-align: center; padding: 80px 24px; }
+        .cta h2 { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 20px; }
+        .cta p { color: rgba(255,255,255,0.7); margin-bottom: 30px; }
+        .cta a { display: inline-block; padding: 16px 40px; background: #e94560; color: white; text-decoration: none; border-radius: 50px; font-weight: 600; }
+        
+        .footer { background: #f5f5f5; padding: 40px 60px; text-align: center; color: #999; font-size: 14px; }
+        
+        @media (max-width: 768px) {
+            .nav { padding: 16px 24px; flex-direction: column; gap: 16px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 20px; }
+            .hero, .section { padding: 60px 24px; }
+            .hero h1 { font-size: 36px; }
+            .values, .features { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="logo">Aurora<span>.</span></a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="search.html">Shop</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+    
+    <section class="hero">
+        <h1>About Aurora</h1>
+        <p>Aurora brings you premium fashion & lifestyle products that illuminate your unique style. We believe everyone deserves to feel special.</p>
+    </section>
+    
+    <section class="section">
+        <h2>Our Values</h2>
+        <div class="values">
+            <div class="value-card">
+                <div class="value-icon">✨</div>
+                <h3>Quality First</h3>
+                <p>Every product is carefully curated for quality and style. We never compromise on materials or craftsmanship.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">🌱</div>
+                <h3>Sustainability</h3>
+                <p>Committed to eco-friendly practices and sustainable packaging. Better for you, better for the planet.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">💜</div>
+                <h3>Customer Love</h3>
+                <p>Your satisfaction is our top priority. We're here for you 24/7 with dedicated support.</p>
+            </div>
+        </div>
+        
+        <h2>Why Aurora?</h2>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div>
+                    <h3>Unique Designs</h3>
+                    <p>Our products feature exclusive designs you won't find elsewhere.</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🚚</div>
+                <div>
+                    <h3>Fast Shipping</h3>
+                    <p>Free delivery on orders above ₹999 across India.</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">↩️</div>
+                <div>
+                    <h3>Easy Returns</h3>
+                    <p>Not satisfied? Return within 7 days hassle-free.</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💬</div>
+                <div>
+                    <h3>24/7 Support</h3>
+                    <p>Our team is always here to help you with any questions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta">
+        <h2>Ready to Explore?</h2>
+        <p>Start shopping and discover your perfect style today.</p>
+        <a href="search.html">Shop Now →</a>
+    </section>
+    
+    <footer class="footer">
+        <p>© 2024 Aurora. All rights reserved.</p>
+    </footer>
+</body>
+</html>

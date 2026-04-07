@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora | Checkout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =============================================
+           DESIGN TOKENS
+           ============================================= */
+        :root {
+            --brand-primary:       #667eea;
+            --brand-secondary:     #764ba2;
+            --brand-gradient:      linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --brand-gradient-soft: linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%);
+
+            --text-primary:   #0f172a;
+            --text-secondary: #64748b;
+            --text-muted:     #94a3b8;
+
+            --surface-white:  #ffffff;
+            --surface-soft:   #f8fafc;
+            --surface-border: #e2e8f0;
+
+            --success:     #48bb78;
+            --danger:      #f56565;
+
+            --shadow-sm:       0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md:       0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg:       0 20px 50px rgba(0,0,0,0.12);
+            --shadow-brand:    0 8px 28px rgba(102,126,234,0.28);
+            --shadow-brand-lg: 0 16px 48px rgba(102,126,234,0.36);
+
+            --radius-sm:   10px;
+            --radius-md:   16px;
+            --radius-lg:   24px;
+            --radius-pill: 999px;
+
+            --transition-fast:   0.18s ease;
+            --transition-base:   0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body:    'DM Sans', -apple-system, sans-serif;
+            --max-width: 1060px;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--surface-soft);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* =============================================
+           AMBIENT BACKGROUND
+           ============================================= */
+        .ambient-bg {
+            position: fixed; inset: 0; z-index: -1;
+            pointer-events: none; overflow: hidden;
+        }
+        .ambient-bg::before, .ambient-bg::after {
+            content: ''; position: absolute;
+            width: 600px; height: 600px;
+            border-radius: 50%; filter: blur(130px); opacity: 0.35;
+        }
+        .ambient-bg::before {
+            background: radial-gradient(circle, #667eea, transparent 70%);
+            top: -150px; left: -150px;
+            animation: drift 22s ease-in-out infinite alternate;
+        }
+        .ambient-bg::after {
+            background: radial-gradient(circle, #764ba2, transparent 70%);
+            bottom: -150px; right: -150px;
+            animation: drift 22s ease-in-out infinite alternate-reverse;
+            animation-delay: -11s;
+        }
+        @keyframes drift {
+            0%   { transform: translate(0,0) scale(1); }
+            50%  { transform: translate(80px,-60px) scale(1.1); }
+            100% { transform: translate(-60px,80px) scale(0.95); }
+        }
+
+        /* =============================================
+           TOP BAR
+           ============================================= */
+        .topbar {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 14px 40px; position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar__logo {
+            font-family: var(--font-display); font-size: 20px; font-weight: 800;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-decoration: none;
+        }
+        .topbar__steps {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+        }
+        .topbar__step         { display: flex; align-items: center; gap: 6px; }
+        .topbar__step-dot {
+            width: 22px; height: 22px; border-radius: 50%;
+            border: 2px solid var(--surface-border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800;
+        }
+        .topbar__step--done   .topbar__step-dot { background: var(--success); border-color: transparent; color: white; }
+        .topbar__step--done   { color: var(--success); }
+        .topbar__step--active .topbar__step-dot { background: var(--brand-gradient); border-color: transparent; color: white; }
+        .topbar__step--active { color: var(--brand-primary); }
+        .topbar__step-divider { width: 32px; height: 1px; background: var(--surface-border); }
+        .topbar__back {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 13px; font-weight: 600; transition: color var(--transition-fast);
+        }
+        .topbar__back:hover { color: var(--text-primary); }
+
+        /* =============================================
+           PAGE LAYOUT
+           ============================================= */
+        .page {
+            max-width: var(--max-width); margin: 0 auto;
+            padding: 48px 40px 80px;
+            display: grid; grid-template-columns: 1fr 380px;
+            gap: 32px; align-items: start;
+        }
+        @media (max-width: 820px) {
+            .page { grid-template-columns: 1fr; padding: 28px 20px 60px; }
+            .order-summary { order: -1; }
+        }
+
+        /* =============================================
+           PANEL
+           ============================================= */
+        .panel {
+            background: var(--surface-white); border: 1.5px solid var(--surface-border);
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;
+            animation: fadeUp 0.5s ease-out both;
+        }
+        .panel + .panel { margin-top: 20px; }
+        .panel__header {
+            padding: 20px 24px; border-bottom: 1px solid var(--surface-border);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .panel__header-icon {
+            width: 36px; height: 36px; border-radius: var(--radius-sm);
+            background: var(--brand-gradient-soft); border: 1px solid rgba(102,126,234,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+        }
+        .panel__header-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+        .panel__header-sub   { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+        .panel__body { padding: 24px; }
+
+        /* =============================================
+           FORM ELEMENTS
+           ============================================= */
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .form-field { margin-bottom: 16px; }
+        .form-field:last-child { margin-bottom: 0; }
+        .form-field label {
+            display: block; font-size: 11px; font-weight: 700;
+            color: var(--text-secondary); letter-spacing: 0.8px;
+            text-transform: uppercase; margin-bottom: 7px;
+        }
+        .form-field input {
+            width: 100%; padding: 13px 16px;
+            border: 1.5px solid var(--surface-border); border-radius: var(--radius-md);
+            font-family: var(--font-body); font-size: 14px;
+            color: var(--text-primary); background: var(--surface-soft); outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+        }
+        .form-field input:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1); background: white;
+        }
+        .form-field input.error  { border-color: var(--danger); }
+        .form-field input::placeholder { color: var(--text-muted); }
+
+        /* =============================================
+           ORDER SUMMARY
+           ============================================= */
+        .order-summary { position: sticky; top: 80px; }
+        .order-summary .panel { animation-delay: 0.15s; }
+
+        .order-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 16px 24px; border-bottom: 1px solid var(--surface-border);
+            transition: background 0.15s;
+        }
+        .order-item:last-child { border-bottom: none; }
+        .order-item.selected-item { background: rgba(102,126,234,0.04); }
+        .order-item__cb { width: 16px; height: 16px; accent-color: var(--brand-primary); cursor: pointer; flex-shrink: 0; }
+        .order-item__img {
+            width: 60px; height: 60px; flex-shrink: 0;
+            border-radius: var(--radius-sm);
+            background: var(--surface-soft); border: 1px solid var(--surface-border);
+            overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 26px;
+        }
+        .order-item__img img { width: 100%; height: 100%; object-fit: cover; }
+        .order-item__info { flex: 1; min-width: 0; }
+        .order-item__name {
+            font-size: 13px; font-weight: 700; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+        }
+        .order-item__qty  { font-size: 12px; color: var(--text-muted); }
+        .order-item__price {
+            font-size: 14px; font-weight: 800; flex-shrink: 0;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .order-item__remove {
+            width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #e2e8f0;
+            background: white; color: #94a3b8; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.15s; line-height: 1;
+        }
+        .order-item__remove:hover { background: #fee2e2; border-color: #fca5a5; color: #ef4444; }
+
+        /* Cart bulk-action bar */
+        .cart-bulk-bar {
+            display: none; align-items: center; justify-content: space-between;
+            padding: 10px 24px; background: #fff3f3;
+            border-bottom: 1px solid #fecaca; font-size: 13px;
+        }
+        .cart-bulk-bar.visible { display: flex; }
+        .cart-bulk-bar span { font-weight: 600; color: #ef4444; }
+        .btn-remove-sel {
+            padding: 6px 14px; background: #ef4444; color: white;
+            border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .cart-actions-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 24px 0; font-size: 12px;
+        }
+        .btn-select-all-cart {
+            background: none; border: 1px solid var(--surface-border);
+            border-radius: 6px; padding: 5px 12px; font-size: 12px;
+            font-weight: 600; color: var(--text-secondary); cursor: pointer;
+        }
+        .btn-select-all-cart:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+
+        .price-breakdown {
+            padding: 18px 24px; border-top: 1px solid var(--surface-border);
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .price-row { display: flex; justify-content: space-between; align-items: center; }
+        .price-row__label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .price-row__value { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .price-row__value--free { color: var(--success); }
+        .price-divider { height: 1px; background: var(--surface-border); margin: 2px 0; }
+        .price-row--total .price-row__label { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+        .price-row--total .price-row__value {
+            font-family: var(--font-display); font-size: 22px; font-weight: 800;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .secure-badges {
+            padding: 14px 24px; border-top: 1px solid var(--surface-border);
+            display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+        }
+        .secure-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+        /* =============================================
+           PAY NOW BUTTON
+           ============================================= */
+        .pay-now-btn {
+            width: 100%; background: var(--brand-gradient); color: white;
+            border: none; padding: 17px; border-radius: var(--radius-pill);
+            font-family: var(--font-body); font-size: 16px; font-weight: 700;
+            cursor: pointer; box-shadow: var(--shadow-brand);
+            transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+            margin-top: 24px; position: relative; overflow: hidden;
+        }
+        .pay-now-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%); transition: transform 0.5s ease;
+        }
+        .pay-now-btn:hover::before { transform: translateX(100%); }
+        .pay-now-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-brand-lg); }
+
+        /* =============================================
+           QR PAYMENT MODAL
+           ============================================= */
+        .qr-backdrop {
+            position: fixed; inset: 0; z-index: 5000;
+            background: rgba(15,23,42,0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+            opacity: 0; visibility: hidden;
+            transition: opacity var(--transition-base), visibility var(--transition-base);
+        }
+        .qr-backdrop.open { opacity: 1; visibility: visible; }
+
+        .qr-modal {
+            background: var(--surface-white);
+            border: 1.5px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            width: 100%; max-width: 440px;
+            max-height: 92vh; overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(28px) scale(0.96);
+            transition: transform var(--transition-smooth);
+        }
+        .qr-backdrop.open .qr-modal { transform: translateY(0) scale(1); }
+
+        /* Modal header */
+        .qr-modal__header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--surface-border);
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; background: var(--surface-white); z-index: 1;
+        }
+        .qr-modal__title-wrap { display: flex; flex-direction: column; gap: 2px; }
+        .qr-modal__eyebrow {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.4px;
+            text-transform: uppercase; color: var(--brand-primary);
+        }
+        .qr-modal__title {
+            font-family: var(--font-display); font-size: 19px; font-weight: 800; color: var(--text-primary);
+        }
+        .qr-modal__close {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--surface-soft); border: 1.5px solid var(--surface-border);
+            cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary); transition: all var(--transition-base); flex-shrink: 0;
+        }
+        .qr-modal__close:hover { background: var(--surface-border); transform: rotate(90deg); }
+
+        /* Modal body */
+        .qr-modal__body { padding: 28px; text-align: center; }
+
+        /* Amount chip */
+        .qr-modal__amount {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--brand-gradient-soft);
+            border: 1px solid rgba(102,126,234,0.18);
+            border-radius: var(--radius-pill);
+            padding: 8px 20px; margin-bottom: 24px;
+        }
+        .qr-modal__amount-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+        .qr-modal__amount-value {
+            font-family: var(--font-display); font-size: 20px; font-weight: 800;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        /* QR image */
+        .qr-modal__img-wrap {
+            display: inline-block;
+            background: white;
+            border: 1.5px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 14px; margin-bottom: 10px;
+            box-shadow: var(--shadow-md);
+        }
+        .qr-modal__img-wrap img {
+            width: 200px; height: 200px; object-fit: contain;
+            display: block; border-radius: var(--radius-sm);
+        }
+
+        /* Label below QR image */
+        .qr-modal__label {
+            font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 24px;
+        }
+
+        /* Instruction steps */
+        .qr-modal__steps {
+            display: flex; flex-direction: column; gap: 10px;
+            text-align: left; margin-bottom: 24px;
+        }
+        .qr-modal__step {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 11px 14px;
+            background: var(--surface-soft); border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+        }
+        .qr-modal__step-num {
+            width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+            background: var(--brand-gradient); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800;
+        }
+        .qr-modal__step-text { font-size: 13px; color: var(--text-secondary); font-weight: 500; line-height: 1.5; }
+        .qr-modal__step-text strong { color: var(--text-primary); }
+
+        /* Transaction ID input */
+        .qr-modal__txn-label {
+            display: block; text-align: left;
+            font-size: 11px; font-weight: 700; color: var(--text-secondary);
+            letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 7px;
+        }
+        .qr-modal__txn-input {
+            width: 100%; padding: 13px 16px; margin-bottom: 14px;
+            border: 1.5px solid var(--surface-border); border-radius: var(--radius-md);
+            font-family: var(--font-body); font-size: 14px; letter-spacing: 0.5px;
+            color: var(--text-primary); background: var(--surface-soft); outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+        }
+        .qr-modal__txn-input:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1); background: white;
+        }
+        .qr-modal__txn-input.error { border-color: var(--danger); }
+
+        /* "I have paid" checkbox row */
+        .qr-modal__confirm {
+            display: flex; align-items: center; gap: 10px;
+            padding: 13px 16px; margin-bottom: 20px;
+            background: rgba(72,187,120,0.06); border: 1.5px solid rgba(72,187,120,0.2);
+            border-radius: var(--radius-md); cursor: pointer;
+            user-select: none; transition: background var(--transition-fast);
+        }
+        .qr-modal__confirm:hover { background: rgba(72,187,120,0.1); }
+        .qr-modal__check-box {
+            width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+            border: 2px solid var(--surface-border); background: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: white; transition: all var(--transition-fast);
+        }
+        .qr-modal__confirm.checked .qr-modal__check-box {
+            background: var(--success); border-color: var(--success);
+        }
+        .qr-modal__confirm-text { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+        /* Confirm order button inside modal */
+        .qr-modal__confirm-btn {
+            width: 100%; background: var(--brand-gradient); color: white;
+            border: none; padding: 15px; border-radius: var(--radius-pill);
+            font-family: var(--font-body); font-size: 15px; font-weight: 700;
+            cursor: pointer; box-shadow: var(--shadow-brand);
+            transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), opacity var(--transition-fast);
+        }
+        .qr-modal__confirm-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow-brand-lg); }
+        .qr-modal__confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* No QR warning */
+        .no-qr-warning {
+            background: rgba(245,101,101,0.06); border: 1px solid rgba(245,101,101,0.2);
+            border-radius: var(--radius-md); padding: 24px; text-align: center;
+            color: var(--danger); font-size: 14px; font-weight: 600;
+        }
+        .no-qr-warning__icon { font-size: 28px; margin-bottom: 8px; }
+        .no-qr-warning__sub  { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 400; }
+
+        /* =============================================
+           SUCCESS SCREEN
+           ============================================= */
+        .success-screen {
+            display: none; min-height: 100vh;
+            align-items: center; justify-content: center;
+            padding: 40px 24px; flex-direction: column; text-align: center;
+        }
+        .success-screen.visible { display: flex; }
+        .success-card {
+            background: var(--surface-white); border: 1.5px solid var(--surface-border);
+            border-radius: var(--radius-lg); padding: 56px 48px;
+            max-width: 460px; width: 100%; box-shadow: var(--shadow-lg);
+            animation: fadeUp 0.6s ease-out both;
+        }
+        .success-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(72,187,120,0.1); border: 2px solid rgba(72,187,120,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; margin: 0 auto 24px;
+            animation: popIn 0.5s cubic-bezier(0.68,-0.55,0.265,1.55) 0.3s both;
+        }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .success-title {
+            font-family: var(--font-display); font-size: 28px; font-weight: 800;
+            color: var(--text-primary); margin-bottom: 10px;
+        }
+        .success-subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.6; }
+        .success-order-id {
+            display: inline-block;
+            background: var(--brand-gradient-soft); border: 1px solid rgba(102,126,234,0.2);
+            color: var(--brand-primary); font-size: 12px; font-weight: 700;
+            letter-spacing: 0.8px; padding: 6px 16px; border-radius: var(--radius-pill);
+            margin: 16px 0 28px;
+        }
+        .success-actions { display: flex; flex-direction: column; gap: 12px; }
+        .btn-primary {
+            background: var(--brand-gradient); color: white; border: none;
+            padding: 14px 32px; border-radius: var(--radius-pill);
+            font-family: var(--font-body); font-size: 14px; font-weight: 700;
+            cursor: pointer; box-shadow: var(--shadow-brand);
+            transition: all var(--transition-smooth); text-decoration: none; display: inline-block;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-brand-lg); }
+        .btn-ghost {
+            background: none; color: var(--text-secondary);
+            border: 1.5px solid var(--surface-border); padding: 13px 32px;
+            border-radius: var(--radius-pill); font-family: var(--font-body);
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all var(--transition-base); text-decoration: none; display: inline-block;
+        }
+        .btn-ghost:hover { border-color: var(--text-primary); color: var(--text-primary); }
+
+        /* =============================================
+           EMPTY CART STATE
+           ============================================= */
+        .empty-state {
+            display: none; min-height: 80vh;
+            flex-direction: column; align-items: center; justify-content: center;
+            gap: 16px; text-align: center; padding: 40px;
+        }
+        .empty-state.visible { display: flex; }
+        .empty-state__icon  { font-size: 64px; opacity: 0.3; }
+        .empty-state__title { font-family: var(--font-display); font-size: 24px; font-weight: 800; }
+        .empty-state__sub   { color: var(--text-secondary); font-size: 15px; }
+
+        /* =============================================
+           UTILITY
+           ============================================= */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 500px) {
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+            .topbar__steps { display: none; }
+            .topbar { padding: 12px 20px; }
+            .success-card { padding: 36px 24px; }
+            .qr-modal__img-wrap img { width: 160px; height: 160px; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" aria-hidden="true"></div>
+
+    <!-- ==========================================
+         TOP BAR
+         ========================================== -->
+    <header class="topbar">
+        <a href="index.html" class="topbar__logo">Aurora</a>
+        <div class="topbar__steps">
+            <div class="topbar__step topbar__step--done">
+                <div class="topbar__step-dot">✓</div>
+                <span>Cart</span>
+            </div>
+            <div class="topbar__step-divider"></div>
+            <div class="topbar__step topbar__step--active">
+                <div class="topbar__step-dot">2</div>
+                <span>Checkout</span>
+            </div>
+            <div class="topbar__step-divider"></div>
+            <div class="topbar__step" id="stepConfirm">
+                <div class="topbar__step-dot">3</div>
+                <span>Confirmation</span>
+            </div>
+        </div>
+        <a href="index.html" class="topbar__back">← Back to shop</a>
+    </header>
+
+    <!-- ==========================================
+         EMPTY CART STATE
+         ========================================== -->
+    <div class="empty-state" id="emptyState">
+        <div class="empty-state__icon">🛒</div>
+        <div class="empty-state__title">Your cart is empty</div>
+        <p class="empty-state__sub">Add some products before checking out.</p>
+        <a href="index.html" class="btn-primary" style="margin-top:8px;">Go Shopping</a>
+    </div>
+
+    <!-- ==========================================
+         CHECKOUT PAGE
+         ========================================== -->
+    <div class="page" id="checkoutPage" style="display:none;">
+
+        <!-- ── LEFT COLUMN: DELIVERY FORM ── -->
+        <div class="checkout-forms">
+
+            <div class="panel">
+                <div class="panel__header">
+                    <div class="panel__header-icon">🚚</div>
+                    <div>
+                        <div class="panel__header-title">Delivery Details</div>
+                        <div class="panel__header-sub">Where should we send your order?</div>
+                    </div>
+                </div>
+                <div class="panel__body">
+                    <div class="form-grid-2">
+                        <div class="form-field">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" placeholder="Arjun">
+                        </div>
+                        <div class="form-field">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" placeholder="Sharma">
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="arjun@example.com">
+                    </div>
+                    <div class="form-field">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-field">
+                        <label for="address">Street Address</label>
+                        <input type="text" id="address" placeholder="123, MG Road, Apartment 4B">
+                    </div>
+                    <div class="form-grid-3">
+                        <div class="form-field">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Mumbai">
+                        </div>
+                        <div class="form-field">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Maharashtra">
+                        </div>
+                        <div class="form-field">
+                            <label for="pincode">PIN Code</label>
+                            <input type="text" id="pincode" placeholder="400001" maxlength="6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="pay-now-btn" onclick="handlePayNow()">
+                📱 Proceed to Payment
+            </button>
+
+        </div>
+
+        <!-- ── RIGHT COLUMN: ORDER SUMMARY ── -->
+        <div class="order-summary">
+            <div class="panel">
+                <div class="panel__header">
+                    <div class="panel__header-icon">🛍️</div>
+                    <div>
+                        <div class="panel__header-title">Order Summary</div>
+                        <div class="panel__header-sub" id="summaryItemCount">0 items</div>
+                    </div>
+                </div>
+                <div class="cart-actions-bar">
+                    <button class="btn-select-all-cart" onclick="toggleSelectAllCart()">&#9745; Select All</button>
+                </div>
+                <div class="cart-bulk-bar" id="cartBulkBar">
+                    <span id="cartBulkCount">0 selected</span>
+                    <button class="btn-remove-sel" onclick="removeSelected()">&#128465; Remove Selected</button>
+                </div>
+                <div id="orderItemsList"></div>
+                <div class="price-breakdown">
+                    <div class="price-row">
+                        <span class="price-row__label">Subtotal</span>
+                        <span class="price-row__value" id="subtotalVal">₹0</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="price-row__label">Shipping</span>
+                        <span class="price-row__value" id="shippingVal">Free</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="price-row__label">Taxes (18% GST)</span>
+                        <span class="price-row__value" id="taxVal">₹0</span>
+                    </div>
+                    <div class="price-divider"></div>
+                    <div class="price-row price-row--total">
+                        <span class="price-row__label">Total</span>
+                        <span class="price-row__value" id="totalVal">₹0</span>
+                    </div>
+                </div>
+                <div class="secure-badges">
+                    <div class="secure-badge">🔒 SSL Encrypted</div>
+                    <div class="secure-badge">✅ 100% Secure</div>
+                    <div class="secure-badge">↩️ Easy Returns</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end .page -->
+
+    <!-- ==========================================
+         QR PAYMENT MODAL
+         Opened only after delivery form passes validation
+         ========================================== -->
+    <div class="qr-backdrop" id="qrBackdrop" onclick="handleBackdropClick(event)">
+        <div class="qr-modal" role="dialog" aria-modal="true" aria-label="Complete your payment">
+
+            <div class="qr-modal__header">
+                <div class="qr-modal__title-wrap">
+                    <span class="qr-modal__eyebrow">Step 2 of 2</span>
+                    <span class="qr-modal__title">Complete Payment</span>
+                </div>
+                <button class="qr-modal__close" onclick="closeQrModal()" aria-label="Close">✕</button>
+            </div>
+
+            <div class="qr-modal__body">
+
+                <!-- Amount to pay -->
+                <div class="qr-modal__amount">
+                    <span class="qr-modal__amount-label">Pay exactly</span>
+                    <span class="qr-modal__amount-value" id="modalAmount">₹0</span>
+                </div>
+
+                <!-- QR image — injected by JS -->
+                <div id="qrContent">
+                    <!-- Populated by openQrModal() -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         SUCCESS SCREEN
+         ========================================== -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-card">
+            <div class="success-icon">🎉</div>
+            <div class="success-title">Order Confirmed!</div>
+            <p class="success-subtitle">
+                Thank you for your purchase. We've received your order and will process it once your payment is verified.
+            </p>
+            <div class="success-order-id" id="successOrderId">ORDER #—</div>
+            <div class="success-actions">
+                <a href="index.html" class="btn-primary">Continue Shopping</a>
+                <a href="index.html" class="btn-ghost">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ------------------------------------------
+           CONSTANTS
+        ------------------------------------------ */
+        const CART_KEY = 'aurora_cart';
+        const API      = 'http://localhost:5000'; // ← update when deployed
+        const GST_RATE = 0.18;
+        const FREE_SHIP_THRESHOLD = 499;
+        const SHIP_FEE = 49;
+
+        /* ------------------------------------------
+           STATE
+        ------------------------------------------ */
+        const cart    = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+        let   paid    = false;
+        let   orderTotal = 0;
+
+        /* ------------------------------------------
+           BOOT
+        ------------------------------------------ */
+        if (cart.length === 0) {
+            document.getElementById('emptyState').classList.add('visible');
+        } else {
+            document.getElementById('checkoutPage').style.display = 'grid';
+            renderOrderSummary();
+        }
+
+        /* ------------------------------------------
+           CART STATE
+        ------------------------------------------ */
+        let cartSelectedKeys = new Set();
+
+        /* ------------------------------------------
+           ORDER SUMMARY
+        ------------------------------------------ */
+        function renderOrderSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : SHIP_FEE;
+            const tax      = Math.round(subtotal * GST_RATE);
+            const total    = subtotal + shipping + tax;
+            const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+            orderTotal     = total;
+
+            document.getElementById('summaryItemCount').textContent = `${totalQty} item${totalQty !== 1 ? 's' : ''}`;
+
+            if (cart.length === 0) {
+                // Cart became empty after removals — show empty state
+                document.getElementById('checkoutPage').style.display = 'none';
+                document.getElementById('emptyState').classList.add('visible');
+                return;
+            }
+
+            document.getElementById('orderItemsList').innerHTML = cart.map((item, idx) => {
+                const key = item._key || (item.id + '_' + idx);
+                return `
+                <div class="order-item ${cartSelectedKeys.has(key) ? 'selected-item' : ''}">
+                    <input class="order-item__cb" type="checkbox"
+                           ${cartSelectedKeys.has(key) ? 'checked' : ''}
+                           onchange="toggleCartSelect('${key}', this.checked)">
+                    <div class="order-item__img">
+                        ${item.image ? `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">` : '📦'}
+                    </div>
+                    <div class="order-item__info">
+                        <div class="order-item__name">${item.name}</div>
+                        <div class="order-item__qty">Qty: ${item.quantity}${item.selectedSize ? ' · ' + item.selectedSize : ''}</div>
+                    </div>
+                    <div class="order-item__price">₹${item.price * item.quantity}</div>
+                    <button class="order-item__remove" onclick="removeCartItem('${key}')" title="Remove item">&#10005;</button>
+                </div>`;
+            }).join('');
+
+            updateCartBulkBar();
+
+            const shippingEl = document.getElementById('shippingVal');
+            document.getElementById('subtotalVal').textContent = `₹${subtotal}`;
+            shippingEl.textContent  = shipping === 0 ? 'Free' : `₹${shipping}`;
+            shippingEl.style.color  = shipping === 0 ? 'var(--success)' : '';
+            document.getElementById('taxVal').textContent   = `₹${tax}`;
+            document.getElementById('totalVal').textContent = `₹${total}`;
+        }
+
+        function removeCartItem(key) {
+            const idx = cart.findIndex((item, i) => (item._key || (item.id + '_' + i)) === key);
+            if (idx === -1) return;
+            cart.splice(idx, 1);
+            cartSelectedKeys.delete(key);
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            renderOrderSummary();
+        }
+
+        function toggleCartSelect(key, checked) {
+            if (checked) cartSelectedKeys.add(key); else cartSelectedKeys.delete(key);
+            updateCartBulkBar();
+            // update row highlight without full re-render
+            document.querySelectorAll('.order-item').forEach(row => {
+                const cb = row.querySelector('.order-item__cb');
+                if (cb) row.classList.toggle('selected-item', cb.checked);
+            });
+        }
+
+        function toggleSelectAllCart() {
+            const allKeys = cart.map((item, i) => item._key || (item.id + '_' + i));
+            const allSelected = allKeys.every(k => cartSelectedKeys.has(k));
+            if (allSelected) { cartSelectedKeys.clear(); }
+            else             { allKeys.forEach(k => cartSelectedKeys.add(k)); }
+            renderOrderSummary();
+        }
+
+        function updateCartBulkBar() {
+            const bar = document.getElementById('cartBulkBar');
+            const cnt = cartSelectedKeys.size;
+            if (bar) {
+                bar.classList.toggle('visible', cnt > 0);
+                const el = document.getElementById('cartBulkCount');
+                if (el) el.textContent = cnt + ' selected';
+            }
+        }
+
+        function removeSelected() {
+            if (!cartSelectedKeys.size) return;
+            // Remove all selected items from cart array
+            for (let i = cart.length - 1; i >= 0; i--) {
+                const key = cart[i]._key || (cart[i].id + '_' + i);
+                if (cartSelectedKeys.has(key)) cart.splice(i, 1);
+            }
+            cartSelectedKeys.clear();
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            renderOrderSummary();
+        }
+
+        /* ------------------------------------------
+           VALIDATION HELPERS
+        ------------------------------------------ */
+        function required(id) {
+            const el = document.getElementById(id);
+            if (!el.value.trim()) { el.classList.add('error'); el.focus(); return false; }
+            el.classList.remove('error'); return true;
+        }
+        function validEmail(id) {
+            const el = document.getElementById(id);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) {
+                el.classList.add('error'); el.focus(); return false;
+            }
+            el.classList.remove('error'); return true;
+        }
+        function validPin(id) {
+            const el = document.getElementById(id);
+            if (!/^\d{6}$/.test(el.value.trim())) { el.classList.add('error'); el.focus(); return false; }
+            el.classList.remove('error'); return true;
+        }
+
+        // Collect delivery details into an object
+        function getDeliveryDetails() {
+            return {
+                customerName: `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`,
+                email:    document.getElementById('email').value.trim(),
+                phone:    document.getElementById('phone').value.trim(),
+                address:  document.getElementById('address').value.trim(),
+                city:     document.getElementById('city').value.trim(),
+                state:    document.getElementById('state').value.trim(),
+                pincode:  document.getElementById('pincode').value.trim()
+            };
+        }
+
+        /* ------------------------------------------
+           VALIDATE FORM THEN OPEN QR MODAL
+        ------------------------------------------ */
+        function handlePayNow() {
+            const ok =
+                required('firstName') && required('lastName') &&
+                validEmail('email')   && required('phone') &&
+                required('address')   && required('city') &&
+                required('state')     && validPin('pincode');
+
+            if (!ok) {
+                document.querySelector('input.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            openQrModal();
+        }
+
+        /* ==========================================
+           QR FLOW
+           ========================================== */
+        async function openQrModal() {
+            const qrContent = document.getElementById('qrContent');
+            document.getElementById('modalAmount').textContent = `₹${orderTotal}`;
+
+            qrContent.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)">⏳ Loading QR…</div>`;
+            document.getElementById('qrBackdrop').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            paid = false;
+
+            let qr = null;
+            try {
+                const res = await fetch(`${API}/payment/qr`);
+                qr = await res.json();
+            } catch(e) { qr = null; }
+
+            if (!qr || !qr.image) {
+                qrContent.innerHTML = `
+                    <div class="no-qr-warning">
+                        <div class="no-qr-warning__icon">⚠️</div>
+                        Payment QR not configured yet.
+                        <div class="no-qr-warning__sub">Please ask the store admin to upload a payment QR, or use the Online Payment option instead.</div>
+                    </div>`;
+                return;
+            }
+
+            qrContent.innerHTML = `
+                <div class="qr-modal__img-wrap">
+                    <img src="${qr.image}" alt="Payment QR Code">
+                </div>
+                ${qr.label ? `<div class="qr-modal__label">${qr.label}</div>` : '<div style="margin-bottom:20px;"></div>'}
+
+                <div class="qr-modal__steps">
+                    <div class="qr-modal__step">
+                        <div class="qr-modal__step-num">1</div>
+                        <div class="qr-modal__step-text">Open <strong>Google Pay, PhonePe, Paytm</strong> or your bank app</div>
+                    </div>
+                    <div class="qr-modal__step">
+                        <div class="qr-modal__step-num">2</div>
+                        <div class="qr-modal__step-text">Tap <strong>Scan QR</strong> and scan the code above</div>
+                    </div>
+                    <div class="qr-modal__step">
+                        <div class="qr-modal__step-num">3</div>
+                        <div class="qr-modal__step-text">Pay exactly <strong>₹${orderTotal}</strong> and note your Transaction ID</div>
+                    </div>
+                    <div class="qr-modal__step">
+                        <div class="qr-modal__step-num">4</div>
+                        <div class="qr-modal__step-text">Enter your Transaction ID below and confirm</div>
+                    </div>
+                </div>
+
+                <label class="qr-modal__txn-label" for="txnId">UPI Transaction ID</label>
+                <input class="qr-modal__txn-input" type="text" id="txnId"
+                    placeholder="e.g. 407612345678" oninput="updateConfirmBtn()">
+
+                <div class="qr-modal__confirm" id="paidConfirm" onclick="togglePaid()">
+                    <div class="qr-modal__check-box" id="paidCheckBox"></div>
+                    <span class="qr-modal__confirm-text">I have completed the payment</span>
+                </div>
+
+                <button class="qr-modal__confirm-btn" id="confirmOrderBtn"
+                    onclick="confirmQrOrder()" disabled>🔒 Confirm Order</button>
+            `;
+        }
+
+        function closeQrModal() {
+            document.getElementById('qrBackdrop').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        function handleBackdropClick(event) {
+            if (event.target === document.getElementById('qrBackdrop')) closeQrModal();
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQrModal(); });
+
+        function togglePaid() {
+            paid = !paid;
+            document.getElementById('paidConfirm')?.classList.toggle('checked', paid);
+            const box = document.getElementById('paidCheckBox');
+            if (box) box.textContent = paid ? '✓' : '';
+            updateConfirmBtn();
+        }
+        function updateConfirmBtn() {
+            const txn = document.getElementById('txnId')?.value.trim() || '';
+            const btn = document.getElementById('confirmOrderBtn');
+            if (btn) btn.disabled = !(paid && txn.length > 0);
+        }
+
+        async function confirmQrOrder() {
+            const txn = document.getElementById('txnId')?.value.trim();
+            if (!txn) { document.getElementById('txnId')?.classList.add('error'); return; }
+
+            const btn = document.getElementById('confirmOrderBtn');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Placing order…'; }
+
+            const delivery = getDeliveryDetails();
+
+            try {
+                const res = await fetch(`${API}/orders`, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_name: delivery.name, email: delivery.email, phone: delivery.phone, address: delivery.address, city: delivery.city, state: delivery.state, pincode: delivery.pincode, cart, total_amount: orderTotal })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                localStorage.removeItem(CART_KEY);
+                closeQrModal();
+                showSuccess(data.orderId);
+            } catch(e) {
+                if (btn) { btn.disabled = false; btn.textContent = '🔒 Confirm Order'; }
+                alert('Could not place order: ' + e.message);
+            }
+        }
+
+        /* ------------------------------------------
+           SHOW SUCCESS SCREEN
+        ------------------------------------------ */
+        function showSuccess(orderId) {
+            document.getElementById('successOrderId').textContent = `ORDER #${orderId}`;
+            document.getElementById('stepConfirm').classList.add('topbar__step--active');
+            document.getElementById('checkoutPage').style.display = 'none';
+            document.getElementById('successScreen').classList.add('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ------------------------------------------
+           CLEAR ERROR ON FOCUS
+        ------------------------------------------ */
+        document.querySelectorAll('input').forEach(el =>
+            el.addEventListener('focus', () => el.classList.remove('error'))
+        );
+    </script>
+</body>
+</html>
